@@ -31,7 +31,11 @@ async def latency(request: Request):
         )
 
     # Process POST request
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
     regions = body.get("regions", [])
     threshold_ms = body.get("threshold_ms", 180)
 
@@ -51,7 +55,7 @@ async def latency(request: Request):
             "breaches": breaches,
         }
 
-    # ✅ Add CORS headers to the response
+    # ✅ Always return CORS headers
     return Response(
         content=json.dumps(result),
         media_type="application/json",
@@ -59,5 +63,5 @@ async def latency(request: Request):
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST, OPTIONS",
             "Access-Control-Allow-Headers": "*",
-        }
+        },
     )
