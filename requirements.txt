@@ -1,2 +1,6 @@
 fastapi
+uvicorn
 numpy
+pydantic
+python-multipart
+fastapi[all]  # optional, includes CORS support

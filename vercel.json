@@ -1,8 +1,8 @@
 {
-  "functions": {
-    "api/*.py": {
-      "runtime": "python3.11"
-    }
-  }
+  "builds": [
+    { "src": "api/latency.py", "use": "@vercel/python" }
+  ],
+  "routes": [
+    { "src": "/api/latency", "dest": "api/latency.py" }
+  ]
 }
-
