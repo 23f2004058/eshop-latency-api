@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Request, Response
 import json
 import os
 import numpy as np
@@ -7,15 +6,7 @@ from collections import defaultdict
 
 app = FastAPI()
 
-# ✅ Enable full CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],       # allow requests from anywhere
-    allow_methods=["*"],       # allow all HTTP methods (POST, OPTIONS, etc.)
-    allow_headers=["*"],       # allow all headers
-)
-
-# ✅ Load telemetry data
+# Load telemetry data
 BASE_DIR = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, "../telemetry_data.json")
 
@@ -26,8 +17,20 @@ TELEMETRY_DATA = defaultdict(list)
 for entry in raw_data:
     TELEMETRY_DATA[entry["region"]].append(entry)
 
-@app.post("/api/latency")
+# Handle POST and OPTIONS explicitly
+@app.api_route("/api/latency", methods=["POST", "OPTIONS"])
 async def latency(request: Request):
+    # ✅ Handle preflight OPTIONS request
+    if request.method == "OPTIONS":
+        return Response(
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "*",
+            }
+        )
+
+    # Process POST request
     body = await request.json()
     regions = body.get("regions", [])
     threshold_ms = body.get("threshold_ms", 180)
@@ -48,4 +51,13 @@ async def latency(request: Request):
             "breaches": breaches,
         }
 
-    return result
+    # ✅ Add CORS headers to the response
+    return Response(
+        content=json.dumps(result),
+        media_type="application/json",
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
