@@ -1,20 +1,21 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+import json
+import os
 import numpy as np
-import os, json
 from collections import defaultdict
 
 app = FastAPI()
 
-# Enable CORS for POST requests
+# ✅ Enable full CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["POST"],
-    allow_headers=["*"],
+    allow_origins=["*"],       # allow requests from anywhere
+    allow_methods=["*"],       # allow all HTTP methods (POST, OPTIONS, etc.)
+    allow_headers=["*"],       # allow all headers
 )
 
-# Load telemetry data correctly
+# ✅ Load telemetry data
 BASE_DIR = os.path.dirname(__file__)
 DATA_PATH = os.path.join(BASE_DIR, "../telemetry_data.json")
 
